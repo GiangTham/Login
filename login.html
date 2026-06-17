@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng nhập</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#15140f;
+    --bg-1:#1c1a14;
+    --panel:#21201a;
+    --line:#39362b;
+    --line-soft:#2a2820;
+    --text-hi:#f3efe2;
+    --text-mid:#b9b3a0;
+    --text-low:#7e786a;
+    --amber:#e9b44c;
+    --amber-dim:#a9823a;
+    --ok:#7fb88f;
+    --err:#d96c5f;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(233,180,76,0.07), transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(233,180,76,0.05), transparent 40%),
+      var(--bg-0);
+    font-family:var(--font-body);
+    color:var(--text-hi);
+    padding:24px;
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    body{ animation: bg-settle 1.2s ease-out; }
+  }
+  @keyframes bg-settle{ from{opacity:0;} to{opacity:1;} }
+
+  .frame{
+    width:100%;
+    max-width:408px;
+  }
+
+  .mark{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:34px;
+  }
+  .mark-dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--amber);
+    box-shadow:0 0 0 3px rgba(233,180,76,0.14), 0 0 14px rgba(233,180,76,0.5);
+    flex-shrink:0;
+  }
+  .mark-text{
+    font-family:var(--font-display);
+    font-size:14px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--text-mid);
+  }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:38px 34px 32px;
+    position:relative;
+  }
+  .panel::before{
+    content:"";
+    position:absolute;
+    top:0;left:18px;right:18px;
+    height:1px;
+    background:linear-gradient(90deg, transparent, rgba(233,180,76,0.5), transparent);
+  }
+
+  h1{
+    font-family:var(--font-display);
+    font-size:25px;
+    font-weight:600;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    font-size:14px;
+    color:var(--text-low);
+    margin:0 0 30px;
+    line-height:1.5;
+  }
+
+  form{display:flex; flex-direction:column; gap:18px;}
+
+  .field{position:relative;}
+
+  .field-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:8px;
+  }
+  label{
+    font-size:12.5px;
+    font-weight:500;
+    color:var(--text-mid);
+    letter-spacing:0.02em;
+  }
+  .field-status{
+    font-size:11.5px;
+    font-family:var(--font-display);
+    letter-spacing:0.04em;
+    color:var(--text-low);
+    transition:color .25s ease;
+  }
+  .field-status.ok{color:var(--ok);}
+  .field-status.err{color:var(--err);}
+
+  .input-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+  }
+
+  input{
+    width:100%;
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:13px 40px 13px 14px;
+    font-size:14.5px;
+    color:var(--text-hi);
+    font-family:var(--font-body);
+    outline:none;
+    transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  input::placeholder{color:var(--text-low);}
+  input:hover{border-color:#4a463a;}
+  input:focus{
+    border-color:var(--amber-dim);
+    box-shadow:0 0 0 3px rgba(233,180,76,0.1);
+  }
+
+  .field.is-valid input{
+    border-color:rgba(127,184,143,0.55);
+  }
+  .field.is-valid input:focus{
+    box-shadow:0 0 0 3px rgba(127,184,143,0.12);
+  }
+  .field.is-invalid input{
+    border-color:rgba(217,108,95,0.6);
+  }
+  .field.is-invalid input:focus{
+    box-shadow:0 0 0 3px rgba(217,108,95,0.12);
+  }
+
+  .icon{
+    position:absolute;
+    right:13px;
+    width:16px;height:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    transform:scale(0.6);
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .field.is-valid .icon-ok, .field.is-invalid .icon-err{
+    opacity:1;
+    transform:scale(1);
+  }
+  .icon-ok svg{stroke:var(--ok);}
+  .icon-err svg{stroke:var(--err);}
+
+  .toggle-pass{
+    position:absolute;
+    right:13px;
+    background:none;
+    border:none;
+    padding:0;
+    width:16px;height:16px;
+    cursor:pointer;
+    color:var(--text-low);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:color .2s ease;
+  }
+  .toggle-pass:hover{color:var(--text-mid);}
+  .field.is-valid .toggle-pass, .field.is-invalid .toggle-pass{ display:none; }
+
+  .error-msg{
+    font-size:12px;
+    color:var(--err);
+    margin-top:7px;
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    transition:max-height .2s ease, opacity .2s ease, margin-top .2s ease;
+  }
+  .field.is-invalid .error-msg{
+    max-height:30px;
+    opacity:1;
+  }
+
+  .row-between{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:13px;
+    margin-top:-2px;
+  }
+  .remember{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--text-mid);
+    cursor:pointer;
+    user-select:none;
+  }
+  .remember input[type="checkbox"]{
+    width:15px;height:15px;
+    padding:0;
+    accent-color:var(--amber);
+    cursor:pointer;
+  }
+  .link{
+    color:var(--text-mid);
+    text-decoration:none;
+    border-bottom:1px solid var(--line);
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .link:hover{color:var(--amber); border-color:var(--amber-dim);}
+
+  button.submit{
+    margin-top:8px;
+    position:relative;
+    width:100%;
+    padding:14px;
+    border-radius:9px;
+    border:none;
+    background:var(--amber);
+    color:#1a1810;
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:14.5px;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    transition:background .2s ease, transform .15s ease, box-shadow .2s ease;
+    overflow:hidden;
+  }
+  button.submit:hover:not(:disabled){
+    background:#f0c265;
+    box-shadow:0 6px 20px rgba(233,180,76,0.18);
+  }
+  button.submit:active:not(:disabled){ transform:scale(0.985); }
+  button.submit:disabled{
+    background:#3a3729;
+    color:var(--text-low);
+    cursor:not-allowed;
+  }
+  button.submit:focus-visible, input:focus-visible, .remember:focus-within{
+    outline:2px solid var(--amber);
+    outline-offset:2px;
+  }
+
+  .btn-label, .btn-spinner{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+  }
+  .btn-spinner{display:none;}
+  button.submit.loading .btn-label{display:none;}
+  button.submit.loading .btn-spinner{display:inline-flex;}
+
+  .spin{
+    width:15px;height:15px;
+    border-radius:50%;
+    border:2px solid rgba(26,24,16,0.25);
+    border-top-color:#1a1810;
+    animation:spin .65s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:26px 0 22px;
+    color:var(--text-low);
+    font-size:12px;
+  }
+  .divider::before, .divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line-soft);
+  }
+
+  .foot-note{
+    text-align:center;
+    font-size:13.5px;
+    color:var(--text-low);
+    margin-top:26px;
+  }
+
+  @media (max-width:380px){
+    .panel{padding:30px 22px 26px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="mark">
+    <span class="mark-dot"></span>
+    <span class="mark-text">Console</span>
+  </div>
+
+  <div class="panel">
+    <h1>Đăng nhập</h1>
+    <p class="sub">Nhập thông tin tài khoản để tiếp tục vào hệ thống.</p>
+
+    <form id="loginForm" novalidate>
+      <div class="field" id="emailField">
+        <div class="field-head">
+          <label for="email">Email</label>
+          <span class="field-status" id="emailStatus"></span>
+        </div>
+        <div class="input-wrap">
+          <input type="email" id="email" name="email" placeholder="ten@congty.com" autocomplete="email">
+          <span class="icon icon-ok">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6 11.5L13 4.5"/></svg>
+          </span>
+          <span class="icon icon-err">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 4L12 12M12 4L4 12"/></svg>
+          </span>
+        </div>
+        <div class="error-msg" id="emailError">Email chưa đúng định dạng.</div>
+      </div>
+
+      <div class="field" id="passwordField">
+        <div class="field-head">
+          <label for="password">Mật khẩu</label>
+          <span class="field-status" id="passwordStatus"></span>
+        </div>
+        <div class="input-wrap">
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
+          <span class="icon icon-ok">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6 11.5L13 4.5"/></svg>
+          </span>
+          <span class="icon icon-err">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 4L12 12M12 4L4 12"/></svg>
+          </span>
+          <button type="button" class="toggle-pass" id="togglePass" aria-label="Hiện mật khẩu">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8C1 8 3.5 3 8 3C12.5 3 15 8 15 8C15 8 12.5 13 8 13C3.5 13 1 8 1 8Z"/><circle cx="8" cy="8" r="2.2"/></svg>
+          </button>
+        </div>
+        <div class="error-msg" id="passwordError">Mật khẩu tối thiểu 8 ký tự.</div>
+      </div>
+
+      <div class="row-between">
+        <label class="remember">
+          <input type="checkbox" id="remember">
+          Ghi nhớ đăng nhập
+        </label>
+        <a href="#" class="link">Quên mật khẩu?</a>
+      </div>
+
+      <button type="submit" class="submit" id="submitBtn" disabled>
+        <span class="btn-label">Đăng nhập</span>
+        <span class="btn-spinner"><span class="spin"></span> Đang xác thực…</span>
+      </button>
+    </form>
+
+    <div class="divider">hoặc</div>
+    <p class="foot-note">Chưa có tài khoản? <a href="#" class="link">Tạo tài khoản</a></p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const emailField = document.getElementById('emailField');
+  const emailInput = document.getElementById('email');
+  const emailStatus = document.getElementById('emailStatus');
+
+  const passField = document.getElementById('passwordField');
+  const passInput = document.getElementById('password');
+  const passStatus = document.getElementById('passwordStatus');
+
+  const togglePass = document.getElementById('togglePass');
+  const form = document.getElementById('loginForm');
+  const submitBtn = document.getElementById('submitBtn');
+
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  let emailTouched = false;
+  let passTouched = false;
+
+  function setFieldState(field, status, valid){
+    field.classList.remove('is-valid','is-invalid');
+    if (valid === true){
+      field.classList.add('is-valid');
+      status.textContent = 'Hợp lệ';
+      status.classList.remove('err');
+      status.classList.add('ok');
+    } else if (valid === false){
+      field.classList.add('is-invalid');
+      status.textContent = 'Lỗi';
+      status.classList.remove('ok');
+      status.classList.add('err');
+    } else {
+      status.textContent = '';
+      status.classList.remove('ok','err');
+    }
+  }
+
+  function validateEmail(){
+    const v = emailInput.value.trim();
+    if (v === ''){
+      setFieldState(emailField, emailStatus, null);
+      return false;
+    }
+    const ok = emailRe.test(v);
+    setFieldState(emailField, emailStatus, ok);
+    return ok;
+  }
+
+  function validatePassword(){
+    const v = passInput.value;
+    if (v === ''){
+      setFieldState(passField, passStatus, null);
+      return false;
+    }
+    const ok = v.length >= 8;
+    setFieldState(passField, passStatus, ok);
+    return ok;
+  }
+
+  function refreshSubmit(){
+    const emailOk = emailRe.test(emailInput.value.trim());
+    const passOk = passInput.value.length >= 8;
+    submitBtn.disabled = !(emailOk && passOk) || submitBtn.classList.contains('loading');
+  }
+
+  emailInput.addEventListener('input', function(){
+    emailTouched = true;
+    validateEmail();
+    refreshSubmit();
+  });
+  emailInput.addEventListener('blur', function(){
+    emailTouched = true;
+    validateEmail();
+  });
+
+  passInput.addEventListener('input', function(){
+    passTouched = true;
+    validatePassword();
+    refreshSubmit();
+  });
+  passInput.addEventListener('blur', function(){
+    passTouched = true;
+    validatePassword();
+  });
+
+  togglePass.addEventListener('click', function(){
+    const isPwd = passInput.type === 'password';
+    passInput.type = isPwd ? 'text' : 'password';
+    togglePass.setAttribute('aria-label', isPwd ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+  });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    emailTouched = true;
+    passTouched = true;
+    const emailOk = validateEmail();
+    const passOk = validatePassword();
+    if (!emailOk || !passOk) { refreshSubmit(); return; }
+
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+
+    // Demo: giả lập gọi API. Thay đoạn này bằng request thật tới server của bạn.
+    setTimeout(function(){
+      submitBtn.classList.remove('loading');
+      refreshSubmit();
+      alert('Đăng nhập thành công (demo).');
+    }, 1600);
+  });
+})();
+</script>
+
+</body>
+</html>
